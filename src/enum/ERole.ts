@@ -1,0 +1,4 @@
+export enum ROLE_CODE {
+    CHAIR_PERSON = 'CHAIR_PERSON',
+    EMPLOYEE = 'EMPLOYEE',
+}
