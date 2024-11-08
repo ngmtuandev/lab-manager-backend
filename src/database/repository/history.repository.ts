@@ -62,4 +62,36 @@ export class HistoryRepository extends GenericRepository<HistoryEntity> {
     const result = await queryBuilder.getMany();
     return result;
   }
+
+  async countCheckinsAndCheckoutsByLabAndDateRange(
+    labId: number,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<number> {
+    return this.repository
+      .createQueryBuilder('history')
+      .where('history.lab.id = :labId', { labId })
+      .andWhere('history.timeCheckin BETWEEN :startDate AND :endDate', {
+        startDate,
+        endDate,
+      })
+      .getCount();
+  }
+
+  // Phương thức để lấy chi tiết lượt vào/ra cho một phòng trong khoảng thời gian
+  async findDetailsByLabAndDateRange(
+    labId: number,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<HistoryEntity[]> {
+    return this.repository
+      .createQueryBuilder('history')
+      .where('history.lab.id = :labId', { labId })
+      .andWhere('history.timeCheckin BETWEEN :startDate AND :endDate', {
+        startDate,
+        endDate,
+      })
+      .leftJoinAndSelect('history.user', 'user') // Lấy thông tin người dùng
+      .getMany();
+  }
 }

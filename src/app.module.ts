@@ -3,8 +3,15 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
-import { AuthModule, HistoryModule, LabModule, UserModule } from './domain';
-
+import {
+  AuthModule,
+  HistoryModule,
+  LabModule,
+  ScheduleModule,
+  UserModule,
+} from './domain';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './guards/roles.guard';
 
 @Module({
   imports: [
@@ -13,9 +20,16 @@ import { AuthModule, HistoryModule, LabModule, UserModule } from './domain';
     HistoryModule,
     UserModule,
     LabModule,
-    AuthModule
+    AuthModule,
+    ScheduleModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
-export class AppModule { }
+export class AppModule {}

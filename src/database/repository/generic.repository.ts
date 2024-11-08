@@ -1,15 +1,25 @@
 import { GenericEntity } from '../entity/generic.entity';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource, EntityManager, EntityTarget, FindOneOptions, FindOptionsWhere, In, Like, Repository } from 'typeorm';
+import {
+  DataSource,
+  EntityManager,
+  EntityTarget,
+  FindOneOptions,
+  FindOptionsWhere,
+  In,
+  Like,
+  Repository,
+} from 'typeorm';
 
 export abstract class GenericRepository<E extends GenericEntity> {
-
   protected repository: Repository<E>;
-
 
   protected entityManager: EntityManager;
 
-  constructor(@InjectDataSource() protected xDs: DataSource) {
+  constructor(
+    @InjectDataSource() protected xDs: DataSource,
+    protected dataSource: DataSource,
+  ) {
     this.repository = xDs.getRepository(this.getEntityType());
     this.entityManager = xDs.manager;
   }
