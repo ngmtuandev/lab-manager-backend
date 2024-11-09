@@ -7,6 +7,7 @@ import {
   Param,
 } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
+import { UpdateStatusActiveScheduleDto } from 'src/dto';
 
 @Controller('schedule')
 export class ScheduleController {
@@ -49,6 +50,24 @@ export class ScheduleController {
       };
     } catch (error) {
       throw new BadRequestException(error.message || 'Đã xảy ra lỗi');
+    }
+  }
+
+  @Post('update-status-schedule')
+  async updateStatusSchedule(
+    @Body() infoUpdate: UpdateStatusActiveScheduleDto,
+  ) {
+    try {
+      const result =
+        await this.scheduleService.updateStatusActiveSchedule(infoUpdate);
+      return result;
+    } catch (error) {
+      return {
+        status: 'FAIL',
+        isSuccess: false,
+        data: null,
+        message: error,
+      };
     }
   }
 }

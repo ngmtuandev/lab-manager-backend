@@ -1,15 +1,10 @@
-import {
-    Entity,
-    Column,
-} from 'typeorm';
+import { Entity, Column } from 'typeorm';
 import { GenericEntity } from './generic.entity';
-0
 @Entity()
 export class RoleEntity extends GenericEntity {
-    @Column()
-    name: string;
+  @Column()
+  name: string;
 
-    @Column()
-    isActive: boolean;
-
+  @Column()
+  isActive: boolean;
 }

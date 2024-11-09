@@ -30,7 +30,12 @@ export class UserService {
       const result = await this.userRepository.save(userEntity);
       return result;
     } catch (error) {
-      console.log('error : ================ ', error);
+      return {
+        status: 'FAIL',
+        isSuccess: false,
+        data: null,
+        message: error,
+      };
     }
   }
 
@@ -55,7 +60,12 @@ export class UserService {
 
     const teacher = await this.userRepository.findOne(teacherId);
     if (!teacher) {
-      throw new BadRequestException('Giáo viên không tồn tại');
+      return {
+        status: 'FAIL',
+        isSuccess: false,
+        data: null,
+        message: 'Giáo viên không tồn tại',
+      };
     }
 
     return this.scheduleRepository.findSchedulesByTeacherAndDateRange(

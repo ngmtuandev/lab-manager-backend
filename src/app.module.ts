@@ -7,6 +7,7 @@ import {
   AuthModule,
   HistoryModule,
   LabModule,
+  RequestModule,
   ScheduleModule,
   UserModule,
 } from './domain';
@@ -22,6 +23,7 @@ import { RolesGuard } from './guards/roles.guard';
     LabModule,
     AuthModule,
     ScheduleModule,
+    RequestModule,
   ],
   controllers: [AppController],
   providers: [

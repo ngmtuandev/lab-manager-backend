@@ -3,7 +3,6 @@ import { GenericEntity } from './generic.entity';
 import { UserEntity } from './user.entity';
 import { LabEntity } from './lab.entity';
 import { ScheduleEntity } from './schedule.entity';
-0;
 @Entity()
 export class HistoryEntity extends GenericEntity {
   // @Column()

@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   HistoryEntity,
   LabEntity,
+  RequestEntity,
   RoleEntity,
   ScheduleEntity,
   UserEntity,
@@ -24,6 +25,7 @@ import {
         LabEntity,
         RoleEntity,
         ScheduleEntity,
+        RequestEntity,
       ],
       synchronize: true,
     }),
