@@ -21,28 +21,41 @@ export class HistoryService {
     const userEntity = await this.userRepository.findOne(+createInfo?.user);
 
     if (!labEntity || !userEntity) {
-      throw new BadRequestException('Phòng học hoặc giáo viên không tồn tại');
+      return {
+        status: 'FAIL',
+        isSuccess: false,
+        data: null,
+        message: 'Phòng học hoặc giáo viên không tồn tại',
+      };
     }
 
     const currentDateString = createInfo.date;
     const currentTime = createInfo.time;
 
-    // Tìm `schedule` hợp lệ cho checkin
+    // Find a valid schedule for check-in
     const schedule = await this.scheduleRepository.findScheduleForCheckin(
       userEntity.id,
       labEntity.id,
       currentDateString,
       currentTime,
+      createInfo?.scheduleId,
     );
 
     if (!schedule) {
-      throw new BadRequestException('Không có lịch dạy hợp lệ để checkin');
+      return {
+        status: 'FAIL',
+        isSuccess: false,
+        data: null,
+        message: 'Không có lịch dạy hợp lệ để checkin',
+      };
     }
 
     const scheduleStartTime = new Date(
       `${currentDateString}T${schedule.startTime}`,
     );
     const checkinTime = new Date(`${currentDateString}T${currentTime}`);
+
+    // Calculate the difference in minutes between check-in and scheduled start time
     const diffInMinutes =
       (checkinTime.getTime() - scheduleStartTime.getTime()) / (1000 * 60);
 
@@ -55,8 +68,9 @@ export class HistoryService {
     historyEntity.userId = userEntity.id;
     historyEntity.timeCheckin = checkinTime;
     historyEntity.hasCheckedIn = true;
-    historyEntity.scheduleId = schedule.id; // Lưu ID của ca làm vào lịch sử checkin
+    historyEntity.scheduleId = schedule.id;
 
+    // Mark late check-in if check-in occurs after the scheduled start time
     if (diffInMinutes > 0) {
       historyEntity.isLateCheckin = true;
       historyEntity.lateCheckinMinutes = Math.round(diffInMinutes);
@@ -76,7 +90,12 @@ export class HistoryService {
         data: result,
       };
     } catch (error) {
-      throw new BadRequestException('Tạo lịch sử checkin lỗi');
+      return {
+        status: 'FAIL',
+        isSuccess: false,
+        data: null,
+        message: 'Tạo lịch sử checkin lỗi',
+      };
     }
   }
 
@@ -85,7 +104,12 @@ export class HistoryService {
     const userEntity = await this.userRepository.findOne(+createCheckout?.user);
 
     if (!labEntity || !userEntity) {
-      throw new BadRequestException('Phòng học hoặc giáo viên không tồn tại');
+      return {
+        status: 'FAIL',
+        isSuccess: false,
+        data: null,
+        message: 'Phòng học hoặc giáo viên không tồn tại',
+      };
     }
 
     const currentDateString = createCheckout.date;
@@ -96,9 +120,12 @@ export class HistoryService {
       createCheckout?.history,
     );
     if (!historyCurrent || !historyCurrent.hasCheckedIn) {
-      throw new BadRequestException(
-        'Không có lịch sử checkin hợp lệ để checkout',
-      );
+      return {
+        status: 'FAIL',
+        isSuccess: false,
+        data: null,
+        message: 'Không có lịch sử checkin hợp lệ để checkout',
+      };
     }
 
     // Tìm `schedule` hợp lệ cho checkout theo `scheduleId`
@@ -106,7 +133,12 @@ export class HistoryService {
       historyCurrent.scheduleId,
     );
     if (!schedule) {
-      throw new BadRequestException('Không có lịch dạy hợp lệ để checkout');
+      return {
+        status: 'FAIL',
+        isSuccess: false,
+        data: null,
+        message: 'Không tìm thấy lịch dạy hợp lệ để checkout',
+      };
     }
 
     const scheduleEndTime = new Date(
@@ -132,6 +164,8 @@ export class HistoryService {
     historyCurrent.timeCheckout = checkoutTime;
 
     try {
+      schedule.isActive = false;
+      await this.scheduleRepository.save(schedule);
       const result = await this.historyRepository.save(historyCurrent);
       return {
         status: 'SUCCESS',
@@ -153,7 +187,12 @@ export class HistoryService {
           : 'Checkout thành công.',
       };
     } catch (error) {
-      throw new BadRequestException('Không thể cập nhật thời gian checkout');
+      return {
+        status: 'FAIL',
+        isSuccess: false,
+        data: null,
+        message: 'Không thể cập nhập thời gian checkout',
+      };
     }
   }
 
@@ -161,13 +200,18 @@ export class HistoryService {
     labId: number,
     startDate: string,
     endDate: string,
-  ): Promise<number> {
+  ) {
     const start = new Date(startDate);
     const end = new Date(endDate);
 
     const labEntity = await this.labRepository.findOne(labId);
     if (!labEntity) {
-      throw new BadRequestException('Phòng học không tồn tại');
+      return {
+        status: 'FAIL',
+        isSuccess: false,
+        data: null,
+        message: 'Phòng học không tồn tại',
+      };
     }
 
     return this.historyRepository.countCheckinsAndCheckoutsByLabAndDateRange(
@@ -196,5 +240,48 @@ export class HistoryService {
       start,
       end,
     );
+  }
+
+  async getTeacherCheckinCheckoutDetails(
+    teacherId: number,
+    startDate: string,
+    endDate: string,
+  ) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    const userEntity = await this.userRepository.findOne(teacherId);
+    if (!userEntity) {
+      return {
+        status: 'FAIL',
+        isSuccess: false,
+        data: null,
+        message: 'Giáo viên không tồn tại',
+      };
+    }
+
+    const records =
+      await this.historyRepository.findTeacherCheckinCheckoutDetails(
+        teacherId,
+        start,
+        end,
+      );
+
+    const formattedRecords = records.map((record) => ({
+      date: record.timeCheckin.toISOString().split('T')[0],
+      checkinTime: record.timeCheckin,
+      checkoutTime: record.timeCheckout,
+      lab: record.lab ? record.lab.nameLab : 'N/A',
+      isLateCheckin: record.isLateCheckin,
+      lateCheckinMinutes: record.lateCheckinMinutes,
+      isEarlyCheckout: record.isEarlyCheckout,
+      earlyCheckoutMinutes: record.earlyCheckoutMinutes,
+    }));
+
+    return {
+      status: 'SUCCESS',
+      isSuccess: true,
+      data: formattedRecords,
+    };
   }
 }

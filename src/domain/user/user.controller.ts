@@ -83,12 +83,14 @@ export class UserController {
     @Query('teacherId') teacherId: number,
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
+    @Query('isActive') isActive: boolean,
   ) {
     try {
       const schedules = await this.userService.getTeacherSchedulesInRange(
         teacherId,
         startDate,
         endDate,
+        isActive,
       );
       return {
         status: 'SUCCESS',

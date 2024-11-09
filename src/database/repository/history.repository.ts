@@ -94,4 +94,20 @@ export class HistoryRepository extends GenericRepository<HistoryEntity> {
       .leftJoinAndSelect('history.user', 'user') // Lấy thông tin người dùng
       .getMany();
   }
+
+  async findTeacherCheckinCheckoutDetails(
+    teacherId: number,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<HistoryEntity[]> {
+    return this.repository
+      .createQueryBuilder('history')
+      .where('history.userId = :teacherId', { teacherId })
+      .andWhere('history.timeCheckin BETWEEN :startDate AND :endDate', {
+        startDate,
+        endDate,
+      })
+      .leftJoinAndSelect('history.lab', 'lab') // Include lab details
+      .getMany();
+  }
 }

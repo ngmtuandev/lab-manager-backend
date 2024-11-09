@@ -48,6 +48,7 @@ export class UserService {
     teacherId: number,
     startDate: string,
     endDate: string,
+    isActive: boolean,
   ) {
     const start = new Date(startDate);
     const end = new Date(endDate);
@@ -59,6 +60,7 @@ export class UserService {
 
     return this.scheduleRepository.findSchedulesByTeacherAndDateRange(
       teacherId,
+      isActive,
       start,
       end,
     );

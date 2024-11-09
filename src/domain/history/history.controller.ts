@@ -16,6 +16,7 @@ export class HistoryController {
   @Post('create-checkin')
   async create(@Body() createInfo: any) {
     try {
+      console.log('checkin start');
       const result = await this.historyService.createCheckin(createInfo);
       if (result) {
         return {
@@ -104,6 +105,27 @@ export class HistoryController {
     } catch (error) {
       throw new BadRequestException(error.message || 'Đã xảy ra lỗi');
     }
+  }
+
+  //
+
+  @Get('teacher-checkin-checkout-details')
+  async getTeacherCheckinCheckoutDetails(
+    @Query('teacherId') teacherId: string,
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+  ) {
+    if (!teacherId || !startDate || !endDate) {
+      throw new BadRequestException('Missing required query parameters');
+    }
+
+    const result = await this.historyService.getTeacherCheckinCheckoutDetails(
+      +teacherId,
+      startDate,
+      endDate,
+    );
+
+    return result;
   }
 
   // @Post('find-by-lab')
