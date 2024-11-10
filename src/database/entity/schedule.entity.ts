@@ -18,6 +18,12 @@ export class ScheduleEntity extends GenericEntity {
   @Column({ type: 'time' })
   endTime: string; // Giờ ra
 
+  @Column({ default: false })
+  hasCheckedIn: boolean; // Indicates if the schedule has been checked in
+
+  @Column({ default: false })
+  hasCheckedOut: boolean;
+
   @ManyToOne(() => LabEntity, (lab) => lab.histories)
   room: LabEntity; // Phòng học (LabEntity)
 

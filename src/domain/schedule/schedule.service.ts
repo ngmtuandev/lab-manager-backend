@@ -109,4 +109,12 @@ export class ScheduleService {
       }
     }
   }
+
+  // tìm theo giáo viên và ngày
+  async getSchedulesByTeacherAndDate(
+    teacherId: number,
+    date: Date,
+  ): Promise<ScheduleEntity[]> {
+    return this.scheduleRepository.findByTeacherAndDate(teacherId, date);
+  }
 }

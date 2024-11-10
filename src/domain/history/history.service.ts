@@ -80,6 +80,8 @@ export class HistoryService {
     }
 
     labEntity.isDoingUse = true;
+    schedule.hasCheckedIn = true;
+    await this.scheduleRepository.save(schedule);
     await this.labRepository.save(labEntity);
 
     try {

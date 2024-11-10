@@ -94,6 +94,21 @@ export class ScheduleRepository extends GenericRepository<ScheduleEntity> {
       .getOne();
   }
 
+  async findByTeacherAndDate(
+    teacherId: number,
+    date: Date,
+  ): Promise<ScheduleEntity[]> {
+    return this.repository
+      .createQueryBuilder('schedule')
+      .where('schedule.teacher.id = :teacherId', { teacherId })
+      .andWhere('schedule.date = :date', { date })
+      .andWhere('schedule.isActive = :isActive', { isActive: true }) // Add condition for isActive
+      .leftJoinAndSelect('schedule.room', 'room')
+      .leftJoinAndSelect('schedule.teacher', 'teacher')
+      .orderBy('schedule.startTime', 'ASC') // Order by startTime in ascending order
+      .getMany();
+  }
+
   async findConflictingSchedules(
     labId: number,
     date: Date,

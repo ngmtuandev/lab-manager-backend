@@ -70,4 +70,27 @@ export class ScheduleController {
       };
     }
   }
+
+  @Get('teacher/:teacherId/date/:date')
+  async getSchedulesByTeacherAndDate(
+    @Param('teacherId') teacherId: number,
+    @Param('date') date: string,
+  ) {
+    console.log('Teacher ID:', teacherId);
+    console.log('Date:', date);
+
+    try {
+      const dateObj = new Date(date);
+      const schedules = await this.scheduleService.getSchedulesByTeacherAndDate(
+        teacherId,
+        dateObj,
+      );
+      return {
+        status: 'SUCCESS',
+        data: schedules,
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message || 'An error occurred');
+    }
+  }
 }
