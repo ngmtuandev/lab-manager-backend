@@ -17,6 +17,10 @@ export class HistoryService {
   ) {}
 
   async createCheckin(createInfo: any) {
+    console.log(
+      '🚀 ~ HistoryService ~ createCheckin ~ createInfo:',
+      createInfo,
+    );
     const labEntity = await this.labRepository.findOne(+createInfo?.lab);
     const userEntity = await this.userRepository.findOne(+createInfo?.user);
 
@@ -32,6 +36,7 @@ export class HistoryService {
     const currentDateString = createInfo.date;
     const currentTime = createInfo.time;
 
+    console.log('start check schedule');
     // Find a valid schedule for check-in
     const schedule = await this.scheduleRepository.findScheduleForCheckin(
       userEntity.id,
@@ -40,14 +45,46 @@ export class HistoryService {
       currentTime,
       createInfo?.scheduleId,
     );
+    console.log('🚀 ~ HistoryService ~ createCheckin ~ schedule:', schedule);
+
+    // Trường hợp vào khác phòng đã lên lịch
 
     if (!schedule) {
-      return {
-        status: 'FAIL',
-        isSuccess: false,
-        data: null,
-        message: 'Không có lịch dạy hợp lệ để checkin',
-      };
+      console.log('no have schedule');
+      // kiểm tra xem có lịch nào của phòng tính từ bây giờ đến 5 phút nữa không
+
+      const checkTime = new Date(`${currentDateString}T${currentTime}`);
+      const fiveMinutesLater = new Date(checkTime.getTime() + 5 * 60 * 1000); // 5 phút sau checkin
+      const findScheduleConflict =
+        await this.scheduleRepository.findConflictingSchedules(
+          labEntity.id,
+          currentDateString,
+          checkTime.toISOString(),
+          fiveMinutesLater.toISOString(),
+        );
+      if (findScheduleConflict) {
+        return {
+          status: 'FAIL',
+          isSuccess: false,
+          data: null,
+          message: 'Phòng này sắp tới/hiện tại đã có ca dạy !',
+        };
+      } else {
+        const checkinTime = new Date(`${currentDateString}T${currentTime}`);
+
+        const historyEntity = new HistoryEntity();
+        historyEntity.lab = labEntity;
+        historyEntity.userEmail = userEntity.email;
+        historyEntity.phoneNumber = userEntity.phoneNumber;
+        historyEntity.user = userEntity;
+        historyEntity.userName = userEntity.userName;
+        historyEntity.userId = userEntity.id;
+        historyEntity.timeCheckin = checkinTime;
+        historyEntity.hasCheckedIn = true;
+        historyEntity.scheduleId = schedule.id;
+        // checkin không đúng phòng
+        historyEntity.isCorrect = false;
+      }
     }
 
     const scheduleStartTime = new Date(

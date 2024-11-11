@@ -20,6 +20,11 @@ export class HistoryEntity extends GenericEntity {
   @Column()
   userId: number;
 
+  @Column({
+    default: true,
+  })
+  isCorrect: boolean;
+
   @Column('timestamp', {
     name: 'timeCheckin',
     default: () => 'CURRENT_TIMESTAMP',

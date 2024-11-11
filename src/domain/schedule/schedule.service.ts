@@ -88,7 +88,6 @@ export class ScheduleService {
     );
     if (findScheduleExist) {
       findScheduleExist.isActive = dataUpdate?.isActive;
-
       try {
         await this.scheduleRepository.save(findScheduleExist);
         return {

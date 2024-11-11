@@ -21,7 +21,7 @@ export class ScheduleRepository extends GenericRepository<ScheduleEntity> {
     labId: number,
     date: string,
     currentTime: string,
-    scheduleId: any,
+    scheduleId?: any,
   ): Promise<ScheduleEntity | null> {
     console.log('🚀 ~ ScheduleRepository ~ date:', date);
     console.log('currentTime (Check-in time requested):', currentTime);
@@ -191,6 +191,43 @@ export class ScheduleRepository extends GenericRepository<ScheduleEntity> {
       })
       .leftJoinAndSelect('schedule.room', 'room') // Lấy thông tin phòng học
       .leftJoinAndSelect('schedule.teacher', 'teacher') // Lấy thông tin giáo viên
+      .getMany();
+  }
+
+  // tìm xem sắp tới có lịch nào khác không (cho checkin khác phòng)
+  async findConflictingSchedulesInNext10Minutes(
+    labId: number,
+    currentTime: string,
+  ): Promise<ScheduleEntity[]> {
+    // Chuyển currentTime thành đối tượng Date
+    const currentDate = new Date(); // Sử dụng ngày hiện tại
+    const [currentHours, currentMinutes] = currentTime.split(':').map(Number);
+
+    currentDate.setHours(currentHours, currentMinutes, 0, 0); // Đặt giờ, phút từ currentTime
+
+    // Tính thời gian 10 phút sau
+    const tenMinutesLater = new Date(currentDate.getTime() + 10 * 60 * 1000); // Thêm 10 phút
+
+    // Chuyển currentDate và tenMinutesLater thành chuỗi để so sánh với startTime và endTime
+    const currentTimeString = currentDate
+      .toISOString()
+      .split('T')[1]
+      .slice(0, 5); // "HH:mm"
+    const tenMinutesLaterString = tenMinutesLater
+      .toISOString()
+      .split('T')[1]
+      .slice(0, 5); // "HH:mm"
+
+    // Tạo câu truy vấn tìm các lịch học xung đột trong khoảng thời gian từ currentTime đến currentTime + 10 phút
+    return this.repository
+      .createQueryBuilder('schedule')
+      .where('schedule.room.id = :labId', { labId })
+      .andWhere('schedule.startTime >= :currentTime', {
+        currentTime: currentTimeString,
+      })
+      .andWhere('schedule.startTime <= :tenMinutesLater', {
+        tenMinutesLater: tenMinutesLaterString,
+      })
       .getMany();
   }
 }
