@@ -1,4 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { HistoryEntity } from 'src/database/entity';
 import {
   HistoryRepository,
@@ -6,6 +7,8 @@ import {
   UserRepository,
   ScheduleRepository,
 } from 'src/database/repository';
+import addMinutes from 'src/helper/addMinus';
+import getCurrentTime from 'src/helper/getCurrentTime';
 
 @Injectable()
 export class HistoryService {
@@ -15,6 +18,16 @@ export class HistoryService {
     private readonly labRepository: LabRepository,
     private readonly scheduleRepository: ScheduleRepository,
   ) {}
+
+  @Cron(CronExpression.EVERY_10_SECONDS) // Job sẽ chạy mỗi phút
+  async handleCron() {
+    const currentTime = getCurrentTime();
+    const findScheduleExpired =
+      await this.scheduleRepository.findExpiredSchedules(currentTime);
+
+    console.log('cron job');
+    console.log('findScheduleExpired : ', findScheduleExpired);
+  }
 
   async createCheckin(createInfo: any) {
     const labEntity = await this.labRepository.findOne(+createInfo?.lab);
@@ -42,6 +55,85 @@ export class HistoryService {
     );
 
     if (!schedule) {
+      const findScheduleConflictNextTime =
+        await this.scheduleRepository.findConflictingSchedules(
+          labEntity?.id,
+          currentDateString,
+          currentTime,
+          addMinutes(currentTime, 20),
+        );
+
+      console.log(
+        '🚀 ~ HistoryService ~ createCheckin ~ findScheduleConflictNextTime:',
+        findScheduleConflictNextTime,
+      );
+      if (findScheduleConflictNextTime?.length > 0) {
+        return {
+          status: 'FAIL',
+          isSuccess: false,
+          data: null,
+          message: 'Phòng này hiện tại/ sắp tới đã có lịch dạy',
+        };
+      } else {
+        console.log('không có lịch dạy nào bị trùng trong thời gian tới');
+
+        const checkinTime = new Date(`${currentDateString}T${currentTime}`);
+
+        console.log(
+          '🚀 ~ HistoryService ~ createCheckin ~ currentTime:',
+          currentTime,
+        );
+        console.log(
+          '🚀 ~ HistoryService ~ createCheckin ~ currentDateString:',
+          currentDateString,
+        );
+        console.log(
+          '🚀 ~ HistoryService ~ createCheckin ~ checkinTime:',
+          checkinTime,
+        );
+        const historyEntity = new HistoryEntity();
+        console.log('Khởi tạo HistoryEntity thành công');
+        historyEntity.lab = labEntity;
+        historyEntity.userEmail = userEntity.email;
+        historyEntity.phoneNumber = userEntity.phoneNumber;
+        historyEntity.user = userEntity;
+        historyEntity.userName = userEntity.userName;
+        historyEntity.userId = userEntity.id;
+        historyEntity.timeCheckin = checkinTime;
+        historyEntity.hasCheckedIn = true;
+        historyEntity.isLateCheckin = false;
+        historyEntity.lateCheckinMinutes = null;
+        historyEntity.isCorrect = false;
+
+        labEntity.isDoingUse = true;
+
+        console.log('bắt dầu lưu schedule và lab');
+        try {
+          await this.labRepository.save(labEntity);
+        } catch (error) {
+          console.log('error : ======= ', error);
+        }
+        console.log('kết thúc lưu');
+        try {
+          console.log('tryyyyy');
+          const result = await this.historyRepository.save(historyEntity);
+          return {
+            status: 'SUCCESS',
+            isSuccess: true,
+            data: result,
+          };
+        } catch (error) {
+          console.log('🚀 ~ HistoryService ~ createCheckin ~ error:', error);
+          console.log('catch ----');
+          return {
+            status: 'FAIL',
+            isSuccess: false,
+            data: null,
+            message: 'Tạo lịch sử checkin lỗi',
+          };
+        }
+      }
+
       return {
         status: 'FAIL',
         isSuccess: false,
@@ -69,6 +161,7 @@ export class HistoryService {
     historyEntity.timeCheckin = checkinTime;
     historyEntity.hasCheckedIn = true;
     historyEntity.scheduleId = schedule.id;
+    historyEntity.isCorrect = true;
 
     // Mark late check-in if check-in occurs after the scheduled start time
     if (diffInMinutes > 0) {
@@ -135,6 +228,37 @@ export class HistoryService {
       historyCurrent.scheduleId,
     );
     if (!schedule) {
+      // Không có trong schedule: trường hợp ngoại lệ
+      labEntity.isDoingUse = false;
+      await this.labRepository.save(labEntity);
+
+      historyCurrent.isEarlyCheckout = false;
+      historyCurrent.earlyCheckoutMinutes = null;
+
+      const checkoutTime = new Date(`${currentDateString}T${currentTime}`);
+      historyCurrent.timeCheckout = checkoutTime;
+
+      const result = await this.historyRepository.save(historyCurrent);
+      return {
+        status: 'SUCCESS',
+        isSuccess: true,
+        data: {
+          id: result.id,
+          lab: labEntity,
+          userEmail: result.userEmail,
+          phoneNumber: result.phoneNumber,
+          userName: result.userName,
+          userId: result.userId,
+          timeCheckin: result.timeCheckin,
+          timeCheckout: result.timeCheckout,
+          isEarlyCheckout: result.isEarlyCheckout,
+          earlyCheckoutMinutes: result.earlyCheckoutMinutes,
+        },
+        message: result.isEarlyCheckout
+          ? `Bạn đã checkout sớm ${result.earlyCheckoutMinutes} phút.`
+          : 'Checkout thành công.',
+      };
+
       return {
         status: 'FAIL',
         isSuccess: false,

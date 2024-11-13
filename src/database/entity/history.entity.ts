@@ -54,10 +54,15 @@ export class HistoryEntity extends GenericEntity {
   earlyCheckoutMinutes?: number;
 
   // Thêm trường scheduleId và liên kết với ScheduleEntity
-  @Column()
+  @Column({ nullable: true })
   scheduleId: number;
 
-  @ManyToOne(() => ScheduleEntity, (schedule) => schedule.histories)
+  @Column({ default: true })
+  isCorrect: boolean;
+
+  @ManyToOne(() => ScheduleEntity, (schedule) => schedule.histories, {
+    nullable: true,
+  })
   schedule: ScheduleEntity;
 
   @ManyToOne(() => UserEntity, (user) => user.histories)

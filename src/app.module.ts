@@ -13,6 +13,7 @@ import {
 } from './domain';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './guards/roles.guard';
+import { ScheduleModule as ScheduleModuleLib } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { RolesGuard } from './guards/roles.guard';
     AuthModule,
     ScheduleModule,
     RequestModule,
+    ScheduleModuleLib.forRoot(),
   ],
   controllers: [AppController],
   providers: [

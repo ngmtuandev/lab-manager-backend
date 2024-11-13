@@ -41,9 +41,7 @@ export class ScheduleRepository extends GenericRepository<ScheduleEntity> {
     console.log('🚀 ~ ScheduleRepository ~ schedule:', schedule);
 
     if (!schedule) {
-      throw new Error(
-        'No schedule found for the provided teacher, lab, and date.',
-      );
+      return null;
     }
 
     const scheduledStartTime = schedule.startTime; // Format: "HH:mm"
@@ -115,6 +113,8 @@ export class ScheduleRepository extends GenericRepository<ScheduleEntity> {
     startTime: string,
     endTime: string,
   ): Promise<ScheduleEntity[]> {
+    console.log('🚀 ~ ScheduleRepository ~ startTime:', startTime);
+    console.log('🚀 ~ ScheduleRepository ~ endTime:', endTime);
     return this.repository
       .createQueryBuilder('schedule')
       .where('schedule.room.id = :labId', { labId })
@@ -152,6 +152,39 @@ export class ScheduleRepository extends GenericRepository<ScheduleEntity> {
       },
       relations: ['teacher', 'room'],
     });
+  }
+
+  // tìm những schedule mà giáo viên quên checkout
+  async findExpiredSchedules(currentTime: string) {
+    // Tính toán thời gian kiểm tra (currentTime - 30 phút)
+    const [hours, minutes] = currentTime.split(':').map(Number);
+    let checkTimeMinutes = minutes - 1;
+    let checkTimeHours = hours;
+
+    if (checkTimeMinutes < 0) {
+      checkTimeMinutes += 60;
+      checkTimeHours -= 1;
+    }
+
+    const thirtyMinutesBeforeCurrentTime = `${String(checkTimeHours).padStart(2, '0')}:${String(checkTimeMinutes).padStart(2, '0')}`;
+
+    console.log(
+      'Thời gian 30 phút trước hiện tại:',
+      thirtyMinutesBeforeCurrentTime,
+    );
+
+    // Tìm các lịch đã quá thời hạn endTime so với thời gian kiểm tra
+    return this.repository
+      .createQueryBuilder('schedule')
+      .where('schedule.endTime <= :thirtyMinutesBeforeCurrentTime', {
+        thirtyMinutesBeforeCurrentTime,
+      })
+      .andWhere('schedule.hasCheckedOut = :hasCheckedOut', {
+        hasCheckedOut: false,
+      }) // Kiểm tra nếu chưa check out
+      .leftJoinAndSelect('schedule.teacher', 'teacher') // Lấy thông tin giáo viên
+      .leftJoinAndSelect('schedule.room', 'room') // Lấy thông tin phòng học
+      .getMany();
   }
 
   // Phương thức cho CHECKOUT - tìm theo teacherId, labId, date và endTime
