@@ -155,7 +155,7 @@ export class ScheduleRepository extends GenericRepository<ScheduleEntity> {
   }
 
   // tìm những schedule mà giáo viên quên checkout
-  async findExpiredSchedules(currentTime: string) {
+  async findExpiredSchedules(currentTime: string, date: string) {
     // Tính toán thời gian kiểm tra (currentTime - 30 phút)
     const [hours, minutes] = currentTime.split(':').map(Number);
     let checkTimeMinutes = minutes - 1;
@@ -169,7 +169,7 @@ export class ScheduleRepository extends GenericRepository<ScheduleEntity> {
     const thirtyMinutesBeforeCurrentTime = `${String(checkTimeHours).padStart(2, '0')}:${String(checkTimeMinutes).padStart(2, '0')}`;
 
     console.log(
-      'Thời gian 30 phút trước hiện tại:',
+      'Thời gian 1 phút trước hiện tại:',
       thirtyMinutesBeforeCurrentTime,
     );
 
@@ -179,6 +179,8 @@ export class ScheduleRepository extends GenericRepository<ScheduleEntity> {
       .where('schedule.endTime <= :thirtyMinutesBeforeCurrentTime', {
         thirtyMinutesBeforeCurrentTime,
       })
+      .andWhere('schedule.isActive = true')
+      .andWhere('schedule.date = :date', { date })
       .andWhere('schedule.hasCheckedOut = :hasCheckedOut', {
         hasCheckedOut: false,
       }) // Kiểm tra nếu chưa check out
