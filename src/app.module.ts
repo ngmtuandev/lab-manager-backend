@@ -14,6 +14,8 @@ import {
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './guards/roles.guard';
 import { ScheduleModule as ScheduleModuleLib } from '@nestjs/schedule';
+import { MailController } from './domain/mailer/MailController';
+import { MailService } from './domain/mailer/MailService';
 
 @Module({
   imports: [
@@ -27,9 +29,10 @@ import { ScheduleModule as ScheduleModuleLib } from '@nestjs/schedule';
     RequestModule,
     ScheduleModuleLib.forRoot(),
   ],
-  controllers: [AppController],
+  controllers: [AppController, MailController],
   providers: [
     AppService,
+    MailService,
     {
       provide: APP_GUARD,
       useClass: RolesGuard,

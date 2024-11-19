@@ -4,6 +4,7 @@ import { LabRepository } from 'src/database/repository/lab.repository';
 import { UserRepository } from 'src/database/repository/user.repository';
 import { ScheduleEntity } from 'src/database/entity/schedule.entity';
 import { UpdateStatusActiveScheduleDto } from 'src/dto';
+import { MailService } from '../mailer/MailService';
 
 @Injectable()
 export class ScheduleService {
@@ -11,6 +12,7 @@ export class ScheduleService {
     private readonly scheduleRepository: ScheduleRepository,
     private readonly labRepository: LabRepository,
     private readonly userRepository: UserRepository,
+    private readonly mailService: MailService,
   ) {}
 
   async createSchedule(scheduleData: {
@@ -62,6 +64,20 @@ export class ScheduleService {
         message: 'Phòng đã có lịch dạy vào thời gian này',
       };
     }
+
+    const result = await this.mailService.sendMail(
+      teacher.email,
+      `New Schedule for You at ${startTime} and room: ${lab.nameLab}`,
+      `
+      User: ${teacher?.email}
+      Date: ${date}
+      Time Start: ${startTime}
+      Time End: ${endTime}
+      Room: ${lab?.nameLab}
+      ** Please remember your schedule and don't checkin late. Thankyou !! **
+      `,
+    );
+    console.log('🚀 ~ ScheduleService ~ result:', result);
 
     // Tạo lịch mới nếu không có xung đột
     const newSchedule = new ScheduleEntity();

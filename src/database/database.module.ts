@@ -10,15 +10,41 @@ import {
 } from './entity';
 
 // TODO: FIX .ENV
+// @Module({
+//   imports: [
+//     TypeOrmModule.forRoot({
+//       type: 'postgres',
+//       host: 'postgres.railway.internal',
+//       port: 5432,
+//       username: 'postgres',
+//       password: 'AiKUHwEevcljnYcALVvIjdDoyyRyQBKY',
+//       database: 'railway',
+//       entities: [
+//         HistoryEntity,
+//         UserEntity,
+//         LabEntity,
+//         RoleEntity,
+//         ScheduleEntity,
+//         RequestEntity,
+//       ],
+//       synchronize: true,
+//       ssl: {
+//         rejectUnauthorized: false, // Cần khi Railway yêu cầu SSL
+//       },
+//       autoLoadEntities: true,
+//     }),
+//   ],
+// })
+
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'postgres.railway.internal',
+      host: 'localhost',
       port: 5432,
       username: 'postgres',
-      password: 'AiKUHwEevcljnYcALVvIjdDoyyRyQBKY',
-      database: 'railway',
+      password: 'Manhtuan123***',
+      database: 'do_an',
       entities: [
         HistoryEntity,
         UserEntity,
@@ -28,10 +54,10 @@ import {
         RequestEntity,
       ],
       synchronize: true,
-      ssl: {
-        rejectUnauthorized: false, // Cần khi Railway yêu cầu SSL
-      },
-      autoLoadEntities: true,
+      // ssl: {
+      //   rejectUnauthorized: false, // Cần khi Railway yêu cầu SSL
+      // },
+      // autoLoadEntities: true,
     }),
   ],
 })
