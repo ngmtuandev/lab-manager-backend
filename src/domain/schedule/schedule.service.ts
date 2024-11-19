@@ -77,7 +77,6 @@ export class ScheduleService {
       ** Please remember your schedule and don't checkin late. Thankyou !! **
       `,
     );
-    console.log('🚀 ~ ScheduleService ~ result:', result);
 
     // Tạo lịch mới nếu không có xung đột
     const newSchedule = new ScheduleEntity();
