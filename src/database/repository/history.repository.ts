@@ -94,7 +94,6 @@ export class HistoryRepository extends GenericRepository<HistoryEntity> {
       .leftJoinAndSelect('history.user', 'user') // Lấy thông tin người dùng
       .getMany();
   }
-
   async findTeacherCheckinCheckoutDetails(
     teacherId: number,
     startDate: Date,
