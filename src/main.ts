@@ -4,7 +4,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: false });
   app.enableCors({
-    origin: 'http://localhost:8081', // Địa chỉ frontend của bạn
+    origin: '*', // Cho phép tất cả các nguồn gốc
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS', // Các phương thức được cho phép
     credentials: true, // Cho phép cookie hoặc thông tin xác thực khác
   });
