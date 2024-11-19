@@ -93,4 +93,26 @@ export class ScheduleController {
       throw new BadRequestException(error.message || 'An error occurred');
     }
   }
+
+  @Post('notify')
+  async postNotifyForTeacher(
+    @Body('teacherId') teacherId: number,
+    @Body('start') start: any,
+    @Body('end') end: any,
+  ) {
+    try {
+      const result = this.scheduleService.notifyScheduleForTeacher(
+        teacherId,
+        start,
+        end,
+      );
+      return result;
+    } catch (error) {
+      return {
+        status: 'FAIL',
+        isSuccess: false,
+        message: error,
+      };
+    }
+  }
 }

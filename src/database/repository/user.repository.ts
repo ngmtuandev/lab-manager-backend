@@ -9,10 +9,10 @@ export class UserRepository extends GenericRepository<UserEntity> {
     return UserEntity;
   }
 
-  async findOne(phoneNumber: any) {
+  async findOne(id: number) {
     const lab = await this.repository.findOne({
       where: {
-        phoneNumber,
+        id,
       },
     });
     return lab;

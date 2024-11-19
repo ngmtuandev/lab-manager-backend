@@ -15,12 +15,13 @@ export class MailService {
     });
   }
 
-  async sendMail(to: string, subject: string, text: string) {
+  async sendMail(to: string, subject: string, text: string, html?: string) {
     const mailOptions = {
       from: 'nguyenmanhtuancomputer@gmail.com',
       to,
       subject,
       text,
+      html,
     };
     try {
       const infoMail = await this.transporter.sendMail(mailOptions);

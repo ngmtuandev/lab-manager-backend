@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from 'src/database/repository';
 import { LoginDto } from 'src/dto';
 
@@ -8,7 +9,7 @@ export class AuthService {
 
   async login(infoLogin: LoginDto) {
     const findUser = await this.userRepository.findByUserName(
-      infoLogin?.phoneNumber,
+      infoLogin?.userName,
     );
 
     if (findUser && infoLogin.password == findUser.password) {
@@ -17,6 +18,4 @@ export class AuthService {
       return false;
     }
   }
-
-  async verify() {}
 }

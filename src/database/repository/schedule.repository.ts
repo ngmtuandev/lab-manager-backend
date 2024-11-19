@@ -38,7 +38,6 @@ export class ScheduleRepository extends GenericRepository<ScheduleEntity> {
       },
       relations: ['teacher', 'room'],
     });
-    console.log('🚀 ~ ScheduleRepository ~ schedule:', schedule);
 
     if (!schedule) {
       return null;

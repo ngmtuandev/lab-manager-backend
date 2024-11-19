@@ -132,4 +132,67 @@ export class ScheduleService {
   ): Promise<ScheduleEntity[]> {
     return this.scheduleRepository.findByTeacherAndDate(teacherId, date);
   }
+
+  // thống báo lịch dạy cho giáo viên
+  async notifyScheduleForTeacher(teacherId: any, start: any, end: any) {
+    try {
+      const emailTeacher = (await this.userRepository.findOne(teacherId)).email;
+      const result =
+        await this.scheduleRepository.findSchedulesByTeacherAndDateRange(
+          teacherId,
+          true,
+          start,
+          end,
+        );
+      const tableHtml = `
+      <table border="1" style="border-collapse: collapse; width: 100%;">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tên</th>
+            <th>Ngày</th>
+            <th>Giờ Bắt Đầu</th>
+            <th>Giờ Kết Thúc</th>
+            <th>Phòng</th>
+            <th>Giáo Viên</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${result
+            .map(
+              (item) => `
+            <tr>
+              <td>${item.id}</td>
+              <td>${item.name}</td>
+              <td>${item.date}</td>
+              <td>${item.startTime}</td>
+              <td>${item.endTime}</td>
+              <td>${item.room.nameLab}</td>
+              <td>${item.teacher.userName} (${item.teacher.email})</td>
+            </tr>
+          `,
+            )
+            .join('')}
+        </tbody>
+      </table>
+    `;
+      await this.mailService.sendMail(
+        emailTeacher,
+        `** Schedule of you from ${start} to ${end}`,
+        'Please dont reply this email',
+        tableHtml,
+      );
+      return {
+        status: 'SUCCESS',
+        isSuccess: true,
+        message: 'Notify for user throught email successfully',
+      };
+    } catch (error) {
+      return {
+        status: 'FAIL',
+        isSuccess: false,
+        message: 'Notify for user throught email failure',
+      };
+    }
+  }
 }
