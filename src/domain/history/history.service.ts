@@ -134,6 +134,7 @@ export class HistoryService {
     const scheduleStartTime = new Date(
       `${currentDateString}T${schedule.startTime}`,
     );
+
     const checkinTime = new Date(`${currentDateString}T${currentTime}`);
 
     // Calculate the difference in minutes between check-in and scheduled start time
