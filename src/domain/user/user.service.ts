@@ -5,6 +5,8 @@ import {
   ScheduleRepository,
   UserRepository,
 } from 'src/database/repository';
+import * as zlib from 'zlib';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UserService {
@@ -12,9 +14,10 @@ export class UserService {
     private readonly userRepository: UserRepository,
     private readonly labRepository: LabRepository,
     private readonly scheduleRepository: ScheduleRepository,
+    private readonly authService: AuthService,
   ) {}
 
-  async create(createInfo: any) {
+  async create(createInfo: any, files: any) {
     // const labEntity = await this.labRepository.findOne(+createInfo?.lab);
 
     const userEntity = new UserEntity();
@@ -25,6 +28,12 @@ export class UserService {
     userEntity.role = createInfo.role;
     userEntity.phoneNumber = createInfo.phoneNumber;
     userEntity.password = createInfo.password;
+
+    const imageUrls = await Promise.all(
+      files.map((file: any) => this.authService.uploadImage(file)),
+    );
+
+    userEntity.images = imageUrls;
 
     try {
       const result = await this.userRepository.save(userEntity);

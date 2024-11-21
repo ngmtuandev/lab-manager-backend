@@ -1,14 +1,27 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common';
 import { UserService } from './user.service';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('create')
-  async create(@Body() createInfo: any) {
+  @UseInterceptors(FilesInterceptor('files'))
+  async create(
+    @Body() createInfo: any,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
     try {
-      const result = await this.userService.create(createInfo);
+      const result = await this.userService.create(createInfo, files);
       if (result) {
         return {
           status: 'SUCCESS',

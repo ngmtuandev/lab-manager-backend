@@ -23,6 +23,9 @@ export class UserEntity extends GenericEntity {
   @Column()
   email: string;
 
+  @Column('simple-json', { nullable: true })
+  images: any[];
+
   @Column({
     nullable: true,
   })
