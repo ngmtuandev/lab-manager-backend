@@ -84,4 +84,15 @@ export class UserService {
       end,
     );
   }
+
+  async updateDetectFaceImage(id: any, images: any) {
+    try {
+      const user = await this.userRepository.findOne(id);
+      user.images = images;
+      await this.userRepository.save(user);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
 }

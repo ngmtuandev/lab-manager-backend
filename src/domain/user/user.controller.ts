@@ -66,6 +66,30 @@ export class UserController {
     }
   }
 
+  @Post('update-image')
+  async updateImage(@Body() body: any) {
+    const { id, images } = body;
+    try {
+      const result = await this.userService.updateDetectFaceImage(id, images);
+      if (result) {
+        return {
+          status: 'SUCCESS',
+          isSuccess: true,
+        };
+      } else {
+        return {
+          status: 'FAIL',
+          isSuccess: false,
+        };
+      }
+    } catch (error) {
+      return {
+        status: 'FAIL',
+        isSuccess: false,
+      };
+    }
+  }
+
   @Post('find-all')
   async findAll() {
     try {
