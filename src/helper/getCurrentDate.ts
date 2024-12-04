@@ -1,10 +1,9 @@
-function getCurrentDate(): string {
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0 nên cần +1
-  const day = String(date.getDate()).padStart(2, '0');
+import * as moment from 'moment-timezone';
 
-  return `${year}-${month}-${day}`;
+function getCurrentDate(): string {
+  const vietnamTime = moment().tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD');
+
+  return vietnamTime;
 }
 
 export default getCurrentDate;

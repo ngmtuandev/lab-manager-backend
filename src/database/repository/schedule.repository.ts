@@ -155,6 +155,11 @@ export class ScheduleRepository extends GenericRepository<ScheduleEntity> {
 
   // tìm những schedule mà giáo viên quên checkout
   async findExpiredSchedules(currentTime: string, date: string) {
+    console.log('🚀 ~ ScheduleRepository ~ findExpiredSchedules ~ date:', date);
+    console.log(
+      '🚀 ~ ScheduleRepository ~ findExpiredSchedules ~ currentTime:',
+      currentTime,
+    );
     // Tính toán thời gian kiểm tra (currentTime - 30 phút)
     const [hours, minutes] = currentTime.split(':').map(Number);
     let checkTimeMinutes = minutes - 1;

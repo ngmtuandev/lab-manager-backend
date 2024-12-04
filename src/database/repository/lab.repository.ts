@@ -18,6 +18,14 @@ export class LabRepository extends GenericRepository<LabEntity> {
     return lab;
   }
 
+  async findLabsInUse(): Promise<LabEntity[]> {
+    return this.repository.find({
+      where: {
+        isDoingUse: true,
+      },
+    });
+  }
+
   async findAll() {
     const result = await this.repository.find({
       order: {
