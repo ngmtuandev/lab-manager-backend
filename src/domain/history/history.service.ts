@@ -20,15 +20,15 @@ export class HistoryService {
     private readonly scheduleRepository: ScheduleRepository,
   ) {}
 
-  @Cron(CronExpression.EVERY_5_MINUTES) // Job sẽ chạy 10 giây
-  async handleCron() {
-    const findLabInUse = await this.labRepository.findLabsInUse();
-    findLabInUse?.map(async (item: any) => {
-      const labFind = await this.labRepository.findOne(item.id);
-      labFind.isDoingUse = false;
-      this.labRepository.save(labFind);
-    });
-  }
+  // @Cron(CronExpression.EVERY_5_MINUTES) // Job sẽ chạy 10 giây
+  // async handleCron() {
+  //   const findLabInUse = await this.labRepository.findLabsInUse();
+  //   findLabInUse?.map(async (item: any) => {
+  //     const labFind = await this.labRepository.findOne(item.id);
+  //     labFind.isDoingUse = false;
+  //     this.labRepository.save(labFind);
+  //   });
+  // }
 
   async createCheckin(createInfo: any) {
     const labEntity = await this.labRepository.findOne(+createInfo?.lab);
