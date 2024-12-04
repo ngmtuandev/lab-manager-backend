@@ -20,23 +20,23 @@ export class HistoryService {
     private readonly scheduleRepository: ScheduleRepository,
   ) {}
 
-  // @Cron(CronExpression.EVERY_10_SECONDS) // Job sẽ chạy 10 giây
-  // async handleCron() {
-  //   const currentTime = getCurrentTime();
-  //   const currentDate = getCurrentDate();
-  //   const findScheduleExpired =
-  //     await this.scheduleRepository.findExpiredSchedules(
-  //       currentTime,
-  //       currentDate,
-  //     );
+  @Cron(CronExpression.EVERY_30_SECONDS) // Job sẽ chạy 10 giây
+  async handleCron() {
+    const currentTime = getCurrentTime();
+    const currentDate = getCurrentDate();
+    const findScheduleExpired =
+      await this.scheduleRepository.findExpiredSchedules(
+        currentTime,
+        currentDate,
+      );
 
-  //   findScheduleExpired?.map(async (item: any) => {
-  //     const scheduleExpired = await this.scheduleRepository.findOne(item?.id);
-  //     scheduleExpired.isActive = false;
-  //     scheduleExpired.room.isDoingUse = false;
-  //     this.scheduleRepository.save(scheduleExpired);
-  //   });
-  // }
+    findScheduleExpired?.map(async (item: any) => {
+      const scheduleExpired = await this.scheduleRepository.findOne(item?.id);
+      scheduleExpired.isActive = false;
+      scheduleExpired.room.isDoingUse = false;
+      this.scheduleRepository.save(scheduleExpired);
+    });
+  }
 
   async createCheckin(createInfo: any) {
     const labEntity = await this.labRepository.findOne(+createInfo?.lab);
