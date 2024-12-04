@@ -32,6 +32,8 @@ export class HistoryService {
 
     findScheduleExpired?.map(async (item: any) => {
       const scheduleExpired = await this.scheduleRepository.findOne(item?.id);
+      const labFind = await this.labRepository.findOne(scheduleExpired.room.id);
+      labFind.isDoingUse = false;
       scheduleExpired.isActive = false;
       scheduleExpired.room.isDoingUse = false;
       this.scheduleRepository.save(scheduleExpired);
