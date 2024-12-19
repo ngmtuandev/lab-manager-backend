@@ -14,11 +14,11 @@ import {
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'pg-3867fca-nguyenmanhtuancomputer-4939.l.aivencloud.com',
-      port: 22085,
-      username: 'avnadmin',
-      password: 'AVNS_uDO6u2sbSeZxpBzE0xT',
-      database: 'defaultdb',
+      host: 'postgres.railway.internal',
+      port: 5432,
+      username: 'postgres',
+      password: 'AiKUHwEevcljnYcALVvIjdDoyyRyQBKY',
+      database: 'railway',
       entities: [
         HistoryEntity,
         UserEntity,
