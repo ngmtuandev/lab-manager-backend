@@ -61,6 +61,29 @@ export class LabController {
     }
   }
 
+  @Post('update-room-empty')
+  async updateRoomEmpty(@Body() id: any) {
+    try {
+      const result = await this.labService.updateStatusUseLab(id);
+      if (result) {
+        return {
+          status: 'SUCCESS',
+          isSuccess: true,
+        };
+      } else {
+        return {
+          status: 'FAIL',
+          isSuccess: false,
+        };
+      }
+    } catch (error) {
+      return {
+        status: 'FAIL',
+        isSuccess: false,
+      };
+    }
+  }
+
   @Post('find-all')
   async findAll() {
     try {

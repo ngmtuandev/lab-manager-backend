@@ -20,6 +20,13 @@ export class LabService {
     return lab;
   }
 
+  async updateStatusUseLab(id: any) {
+    const labUpdate = await this.labRepository.findOne(id?.id);
+    labUpdate.isDoingUse = false;
+    this.labRepository.save(labUpdate);
+    return true;
+  }
+
   async findAll() {
     const findAll = this.labRepository.findAll();
     return findAll;
