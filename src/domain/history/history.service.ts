@@ -327,6 +327,7 @@ export class HistoryService {
     labId: number,
     startDate: string,
     endDate: string,
+    userId?: number,
   ) {
     const start = new Date(startDate);
     const end = new Date(endDate);
@@ -340,6 +341,7 @@ export class HistoryService {
       labId,
       start,
       end,
+      userId,
     );
   }
 

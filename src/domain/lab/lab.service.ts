@@ -65,4 +65,46 @@ export class LabService {
 
     return this.labRepository.getAvailableDatesInRange(labId, start, end);
   }
+
+  async getLabsByStatusAndSchedule(startDate: Date, endDate: Date) {
+    // Lấy tất cả các phòng
+    const labs = await this.labRepository.findAll();
+
+    // Lấy danh sách phòng và trạng thái của chúng theo khoảng thời gian
+    const results = await Promise.all(
+      labs.map(async (lab) => {
+        const scheduledDates =
+          await this.labRepository.getScheduledDatesInRangeNew(
+            lab.id,
+            startDate,
+            endDate,
+          );
+
+        const availableDates =
+          await this.labRepository.getAvailableDatesInRangeNew(
+            lab.id,
+            startDate,
+            endDate,
+          );
+
+        let status = 'available';
+
+        if (lab.isDoingUse) {
+          status = 'in-use';
+        } else if (scheduledDates.length > 0) {
+          status = 'scheduled';
+        }
+
+        return {
+          labId: lab.id,
+          name: lab.nameLab,
+          status,
+          scheduledDates,
+          availableDates,
+        };
+      }),
+    );
+
+    return results;
+  }
 }

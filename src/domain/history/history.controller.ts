@@ -90,12 +90,14 @@ export class HistoryController {
     @Query('labId') labId: number,
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
+    @Query('userId') userId?: number,
   ) {
     try {
       const details = await this.historyService.getLabCheckinCheckoutDetails(
         labId,
         startDate,
         endDate,
+        userId && userId,
       );
       return {
         status: 'SUCCESS',

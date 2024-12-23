@@ -89,4 +89,70 @@ export class LabRepository extends GenericRepository<LabEntity> {
 
     return availableDates;
   }
+
+  async getScheduledDatesInRangeNew(
+    labId: number,
+    startDate: Date,
+    endDate: Date,
+  ) {
+    return this.repository
+      .createQueryBuilder('lab')
+      .innerJoinAndSelect('lab.schedules', 'schedule')
+      .where('lab.id = :labId', { labId })
+      .andWhere('schedule.date BETWEEN :startDate AND :endDate', {
+        startDate,
+        endDate,
+      })
+      .getMany();
+  }
+
+  async getAvailableDatesInRangeNew(
+    labId: number,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<Date[]> {
+    console.log('Input dates:', { startDate, endDate });
+
+    const query = this.repository
+      .createQueryBuilder('lab')
+      .innerJoin('lab.schedules', 'schedule')
+      .select('schedule.date', 'date')
+      .where('lab.id = :labId', { labId })
+      .andWhere('schedule.date BETWEEN :startDate AND :endDate', {
+        startDate,
+        endDate,
+      });
+
+    console.log('Raw query:', query.getQuery());
+
+    const scheduledDates = await query.getRawMany();
+    console.log('Raw scheduled dates:', scheduledDates);
+
+    // Tạo Set chứa các ngày đã lên lịch
+    const scheduledDatesSet = new Set(
+      scheduledDates.map((d) => {
+        // Xử lý date object
+        const date = new Date(d.date);
+        return date.toISOString().split('T')[0];
+      }),
+    );
+
+    console.log('Scheduled dates set:', scheduledDatesSet);
+
+    // Tạo danh sách tất cả các ngày trong khoảng thời gian
+    const availableDates: string[] = [];
+    const currentDate = new Date(startDate);
+    const endDateTime = new Date(endDate);
+
+    while (currentDate <= endDateTime) {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      if (!scheduledDatesSet.has(dateStr)) {
+        availableDates.push(dateStr);
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    console.log('Final available dates:', availableDates);
+    return availableDates.map((dateStr) => new Date(dateStr));
+  }
 }

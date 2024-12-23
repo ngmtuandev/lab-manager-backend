@@ -83,16 +83,21 @@ export class HistoryRepository extends GenericRepository<HistoryEntity> {
     labId: number,
     startDate: Date,
     endDate: Date,
+    userId?: number,
   ): Promise<HistoryEntity[]> {
-    return this.repository
+    const query = this.repository
       .createQueryBuilder('history')
       .where('history.lab.id = :labId', { labId })
       .andWhere('history.timeCheckin BETWEEN :startDate AND :endDate', {
         startDate,
         endDate,
       })
-      .leftJoinAndSelect('history.user', 'user') // Lấy thông tin người dùng
-      .getMany();
+      .leftJoinAndSelect('history.user', 'user');
+    // Chỉ thêm điều kiện where userId khi có truyền userId
+    if (userId) {
+      query.andWhere('history.userId = :userId', { userId });
+    }
+    return query.getMany();
   }
   async findTeacherCheckinCheckoutDetails(
     teacherId: number,

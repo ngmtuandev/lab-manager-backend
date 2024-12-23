@@ -153,4 +153,23 @@ export class LabController {
       throw new BadRequestException(error.message || 'Đã xảy ra lỗi');
     }
   }
+
+  @Get('filter')
+  async getFilteredLabs(
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+  ) {
+    if (!startDate || !endDate) {
+      throw new BadRequestException('Start date and end date are required');
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      throw new BadRequestException('Invalid date format');
+    }
+
+    return this.labService.getLabsByStatusAndSchedule(start, end);
+  }
 }

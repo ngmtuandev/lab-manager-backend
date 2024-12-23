@@ -8,7 +8,6 @@ import {
 import { AuthService } from './auth.service';
 import { LoginDto } from 'src/dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import * as zlib from 'zlib';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -56,7 +55,6 @@ export class AuthController {
           data: url,
         };
       } catch (error) {
-        console.log('🚀 ~ AuthController ~ uploadImage ~ error:', error);
         return {
           status: 'FAIL',
           isSuccess: false,

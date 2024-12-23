@@ -4,3 +4,4 @@ export * from './role.entity';
 export * from './history.entity';
 export * from './schedule.entity';
 export * from './request.entity';
+export * from './notify.entity';

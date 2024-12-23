@@ -34,7 +34,6 @@ export class AuthService {
         },
       );
 
-      // Truyền trực tiếp buffer vào stream
       stream.end(file.buffer); // Đảm bảo stream nhận đúng buffer từ Multer
     });
   }
