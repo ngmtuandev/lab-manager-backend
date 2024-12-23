@@ -82,7 +82,7 @@ import {
         RequestEntity,
         NotifyEntity,
       ],
-      synchronize: true,
+      synchronize: false,
       ssl: {
         rejectUnauthorized: false, // Cần khi Railway yêu cầu SSL
       },
