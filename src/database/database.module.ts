@@ -10,42 +10,15 @@ import {
   UserEntity,
 } from './entity';
 
-// @Module({
-//   imports: [
-//     TypeOrmModule.forRoot({
-//       type: 'postgres',
-//       host: 'postgres.railway.internal',
-//       port: 5432,
-//       username: 'postgres',
-//       password: 'AiKUHwEevcljnYcALVvIjdDoyyRyQBKY',
-//       database: 'railway',
-//       entities: [
-//         HistoryEntity,
-//         UserEntity,
-//         LabEntity,
-//         RoleEntity,
-//         ScheduleEntity,
-//         RequestEntity,
-//         NotifyEntity,
-//       ],
-//       synchronize: true,
-//       ssl: {
-//         rejectUnauthorized: false, // Cần khi Railway yêu cầu SSL
-//       },
-//       autoLoadEntities: true,
-//     }),
-//   ],
-// })
-
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      host: 'postgres.railway.internal',
       port: 5432,
       username: 'postgres',
-      password: 'Manhtuan123***',
-      database: 'do_an',
+      password: 'AiKUHwEevcljnYcALVvIjdDoyyRyQBKY',
+      database: 'railway',
       entities: [
         HistoryEntity,
         UserEntity,
@@ -56,13 +29,40 @@ import {
         NotifyEntity,
       ],
       synchronize: true,
-      // ssl: {
-      //   rejectUnauthorized: false, // Cần khi Railway yêu cầu SSL
-      // },
-      // autoLoadEntities: true,
+      ssl: {
+        rejectUnauthorized: false, // Cần khi Railway yêu cầu SSL
+      },
+      autoLoadEntities: true,
     }),
   ],
 })
+
+// @Module({
+//   imports: [
+//     TypeOrmModule.forRoot({
+//       type: 'postgres',
+//       host: 'localhost',
+//       port: 5432,
+//       username: 'postgres',
+//       password: 'Manhtuan123***',
+//       database: 'do_an',
+//       entities: [
+//         HistoryEntity,
+//         UserEntity,
+//         LabEntity,
+//         RoleEntity,
+//         ScheduleEntity,
+//         RequestEntity,
+//         NotifyEntity,
+//       ],
+//       synchronize: true,
+//       // ssl: {
+//       //   rejectUnauthorized: false, // Cần khi Railway yêu cầu SSL
+//       // },
+//       // autoLoadEntities: true,
+//     }),
+//   ],
+// })
 
 // @Module({
 //   imports: [
