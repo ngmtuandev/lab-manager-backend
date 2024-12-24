@@ -107,4 +107,8 @@ export class LabService {
 
     return results;
   }
+
+  async getAllLabsStatus(startDate: Date, endDate: Date) {
+    return this.labRepository.getAllLabsStatusWithSchedules(startDate, endDate);
+  }
 }

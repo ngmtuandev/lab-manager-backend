@@ -172,4 +172,44 @@ export class LabController {
 
     return this.labService.getLabsByStatusAndSchedule(start, end);
   }
+
+  @Get('status')
+  async getLabsStatus(
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+  ) {
+    try {
+      if (!startDate || !endDate) {
+        throw new BadRequestException('startDate and endDate are required');
+      }
+
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+
+      const labs = await this.labService.getAllLabsStatus(start, end);
+
+      // Transform data to desired format
+      const formattedLabs = labs.map((lab) => ({
+        id: lab.id,
+        name: lab.nameLab,
+        isInUse: lab.isDoingUse,
+        hasActiveHistory: lab.histories.length > 0,
+        scheduledDates: lab.schedules.map((schedule) => ({
+          date: schedule.date,
+          startTime: schedule.startTime,
+          endTime: schedule.endTime,
+          teacherId: schedule.teacher?.id,
+          teacherName: schedule.teacher?.userName,
+        })),
+      }));
+
+      return {
+        status: 'SUCCESS',
+        isSuccess: true,
+        data: formattedLabs,
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message || 'An error occurred');
+    }
+  }
 }

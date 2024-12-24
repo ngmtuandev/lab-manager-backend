@@ -155,4 +155,24 @@ export class LabRepository extends GenericRepository<LabEntity> {
     console.log('Final available dates:', availableDates);
     return availableDates.map((dateStr) => new Date(dateStr));
   }
+
+  async getAllLabsStatusWithSchedules(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<LabEntity[]> {
+    return this.repository
+      .createQueryBuilder('lab')
+      .leftJoinAndSelect(
+        'lab.schedules',
+        'schedule',
+        'schedule.date BETWEEN :startDate AND :endDate',
+        { startDate, endDate },
+      )
+      .leftJoinAndSelect(
+        'lab.histories',
+        'history',
+        'history.timeCheckout IS NULL', // Only get active histories (not checked out)
+      )
+      .getMany();
+  }
 }

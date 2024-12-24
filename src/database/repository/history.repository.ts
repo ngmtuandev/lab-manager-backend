@@ -114,4 +114,22 @@ export class HistoryRepository extends GenericRepository<HistoryEntity> {
       .leftJoinAndSelect('history.lab', 'lab') // Include lab details
       .getMany();
   }
+
+  async getLabCheckinCounts(startDate: Date, endDate: Date) {
+    return this.repository
+      .createQueryBuilder('history')
+      .select([
+        'lab.id as "labId"',
+        'lab.nameLab as "labName"',
+        'COUNT(history.id) as "checkinCount"',
+      ])
+      .leftJoin('history.lab', 'lab')
+      .where('history.timeCheckin BETWEEN :startDate AND :endDate', {
+        startDate,
+        endDate,
+      })
+      .groupBy('lab.id')
+      .addGroupBy('lab.nameLab')
+      .getRawMany();
+  }
 }

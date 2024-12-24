@@ -130,6 +130,31 @@ export class HistoryController {
     return result;
   }
 
+  @Get('lab-checkin-counts')
+  async getLabCheckinCounts(
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+  ) {
+    try {
+      if (!startDate || !endDate) {
+        throw new BadRequestException('startDate and endDate are required');
+      }
+
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+
+      const counts = await this.historyService.getLabCheckinCounts(start, end);
+
+      return {
+        status: 'SUCCESS',
+        isSuccess: true,
+        data: counts,
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message || 'An error occurred');
+    }
+  }
+
   // @Post('find-by-lab')
   // async findByLab(@Body() labId: any) {
   //   console.log('labId ============>   ', labId);

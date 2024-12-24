@@ -176,6 +176,18 @@ export class HistoryService {
     }
   }
 
+  async getLabCheckinCounts(startDate: Date, endDate: Date) {
+    const counts = await this.historyRepository.getLabCheckinCounts(
+      startDate,
+      endDate,
+    );
+    return counts.map((count) => ({
+      labId: count.labId,
+      labName: count.labName,
+      checkinCount: parseInt(count.checkinCount),
+    }));
+  }
+
   async createCheckout(createCheckout: any) {
     const labEntity = await this.labRepository.findOne(+createCheckout?.lab);
     const userEntity = await this.userRepository.findOne(+createCheckout?.user);
